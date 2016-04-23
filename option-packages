@@ -1,0 +1,135 @@
+#!/bin/bash
+########################################################################
+#
+#
+#                       script: option-packages
+#                   adapted by: Dan Purgert    
+#                  original by: Two_Dogs
+#                      version: 0.1
+#                         date: Sat Apr 23 09:21:47 EDT 2016
+#                      purpose: Create a logfile of general package
+#                             : settings and history that will allow 
+#                             : the linux mint community members to 
+#                             : assist the individual running it
+#
+#
+#                      license: GPL v2 (only)
+#                   repository: http://github.com/dpurgert
+#              Two_Dogs source: http://github.com/two-dogs
+#
+#
+########################################################################
+
+if [ "$1" = "-h" ]; then
+   echo "   option-packages
+   -------------
+
+   This script will gather system related information which may 
+   help the community troubleshoot the problem you are having.
+
+   Options:
+     -h    Print this help, and exit.
+     -v    Verbose Mode.  Print to stdout and logfile
+
+   USAGE:
+     option-packages
+
+   ROOT COMMANDS:
+     If allowed, this script will update inxi.   
+     The script can be successfully run without updating this, but 
+     some output may be less clear than if the update is allowed.
+
+   ------------- "
+
+   exit 0
+fi
+
+exec 6>/dev/null 
+if [ "$1" = "-v" ]; then
+   #verbose   
+   exec 6>&1
+fi
+
+# ask user if they want to execute root commands.
+if [[ $EUID -ne 0 ]]; then
+   echo "This script requires root permissions to update inxi."
+   
+   read -n 1 -p "Update as root? [Y/n]" "chk"
+   if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
+      #exit, user answered no
+      printf "\n\nNOT updating inxi, if you would like more\n"
+      printf "information about what this does, run with the -h option.\n"
+      update="false"
+      read -n1 -p "Continue without updating? [Y/n]" "chk"
+      if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
+         printf "\nExiting\n"
+         exit 0
+      else
+         printf "\nContinuing without update ...\n"
+      fi 
+   else
+      printf "\nUpdating inxi ... \n\n" 
+      sudo inxi -U >&6 2>&1
+      printf "\nRoot commands complete."
+      printf "\nProgram will continue running as user: $USER.\n\n"
+      update="true"
+   fi
+else
+   printf "\n\n===================WARNING!!!====================\n"
+   printf "Detected script being run as root user.  It is not\n"
+   printf "advisable to do so, as any errors in this script,\n"
+   printf "or in the commands that do not require elevated\n"
+   printf "privileges can potentially harm your system.\n\n"
+   printf "This script is designed to only elevate your user\n"
+   printf "priveleges for the command(s) that require it, and\n"
+   printf "then drop back to your standard user.\n\n"
+   printf "Exiting.\n"
+   exit 1
+fi
+
+
+if [ "$1" != "-v" ]; then
+   printf "\nQuiet Mode: Final notification until program completes."
+   printf "\nDo not press any keys until prompted.\n"
+fi
+
+
+(
+  date 
+  if [ "$update" = "true" ]; then
+     printf "\ninxi updated\n\n"
+  else
+     printf "\ninxi NOT updated\n\n";
+  fi 
+  printf "\n--INXI START--\n"
+  inxi -c0 -Sr 
+  printf "\n--INXI END--\n\n--APT TERM.LOG CHECK BEGIN--\n"
+  grep -Ei 'setting up|configur|remov|err|fail|log started|log ended' /var/log/apt/term.log | tail --lines=60 ;
+  printf "\--APT TERM.LOG END--\n\n--APT UPDATE ERROR CHECK BEGIN--\n" 
+  sudo apt update | grep -Ei 'fail|404' ;
+  printf "\n--APT UPDATE ERROR CHECK END--\n"
+  date 
+) | tee ~/option-packages.log >&6 2>&1
+
+printf "\n\n============================\n"
+printf "COMPLETED! A copy has been saved to:\n"
+printf "   $HOME/option-packages.log\n"
+printf "============================\n\n"
+
+read -n1 -p "Share file to pastebin? [y|N]" "chk"
+
+if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
+   printf "\nProvide the following link to your helper:\n"
+   echo "$(pastebin < ~/option-packages.log)"
+else
+   printf "\nLogfile NOT uploaded to pastebin.\n"
+   printf "Ask the person assisting you where to send it.\n"
+fi
+
+read -n1 -p "Remove the logfile? [y|N]" "chk"
+if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
+   rm $HOME/option-packages.log
+   printf "\nLogfile removed.\n"
+else
+   printf "\nLogfile $HOME/option-packages.log retained.\n"
+fi
