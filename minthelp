@@ -3,7 +3,7 @@
 #
 #
 #                       script: minthelp
-#                   adapted by: Dan Purgert    
+#                           by: Dan Purgert    
 #                      version: 0.1
 #                         date: Sat Apr 23 22:27:51 EDT 2016
 #                      purpose: Central menu / wrapper script for the
@@ -151,15 +151,24 @@ else
    exit 1
 fi
 
+printf "\n From here on out, all but three of the options do not require
+ any elevated permissions.  The \"Drives\", \"Used Space\", and
+ \"Sound\" options will ask your permission to run with elevated
+ permissions. If not given, the program will skip over the part(s) that
+ require elevated privileges.  
+
+ PLEASE NOTE -- The \"Used Space\" option absolutely requires elevated
+  permissions, and will not run without them.  This is due to your 
+  \"normal\" user not having permission to check the usage of your HDD
+  in system folders.\n\n"
+
 #pause to allow user to read...
 
-printf "\nWait for ten (10) seconds to allow you to read messages.\n"
-for i in {10..1}
-do
-  if [ $i -le 5 ] ; then
-    printf "$i ...\n"
+printf "\nWait to allow you to read.\n"
+for i in {10..1}; do
+  if [ $i -le 5 ]; then
+    printf "$i...\n"
   fi
-  i=i--
   sleep 1s
 done
 
@@ -169,12 +178,14 @@ sel=1
 hlp=0
 vrb=0
 mod=''
+declare -a logs
 
 while [ $sel -ne 0 ]
 do
   select choice in "Drives" "Networking" "Packages" "Printing" \
    "Process Tree" "Sound" "System" "Used Drive Space" "Userspace"\
-   "X org" "Set Help Mode" "Set Verbose Mode" "Exit"
+   "X org" "Set Help Mode" "Set Verbose Mode" "Upload Existing Log" \
+   "Exit"
   do
     case $REPLY in
       1)
@@ -256,6 +267,66 @@ do
           mod=''
         fi
         sleep 1s
+        break ;;
+     13)
+        sel=2
+        if [ -f ~/option-drives.log ] ; then logs+="Drives "; fi
+        if [ -f ~/option-network.log ] ; then logs+="Network "; fi
+        if [ -f ~/option-packages.log ] ; then logs+="Packages "; fi
+        if [ -f ~/option-print.log ] ; then logs+="Printing ";fi
+        if [ -f ~/option-pstree.log ] ; then logs+="Processes "; fi
+        if [ -f ~/option-sound.log ] ; then logs+="Sound "; fi
+        if [ -f ~/option-system.log ] ; then logs+="System "; fi
+        if [ -f ~/option-mountspace.log ];then logs+="Space ";fi
+        if [ -f ~/option-userspace.log ] ; then logs+="User "; fi
+        if [ -f ~/option-xorg.log ] ; then logs+="Xorg "; fi
+        logs+="Back"
+        while [ $sel -eq  2 ] ; do
+        clear
+        printf "Select log using the NAME, not the NUMBER, as this\n"
+        printf "menu changes, based on the logfiles you have created.\n"
+        printf "\n"
+        select choice in ${logs[@]} 
+        do
+          case $REPLY in
+           Drives|drives)
+             printf "\noption-drives\n"
+             break ;;
+           Network|network)
+             printf "\noption-network\n"
+             break ;;
+           Packages|packages)
+             printf "\noption-packages\n"
+             break ;;
+           Printing|printing)
+             printf "\noption-print\n"
+             break ;;
+           Processes|processes)
+             printf "\noption-pstree\n"
+             break ;;
+           System|system)
+             printf "\noption-system\n"
+             break ;;
+           Sound|sound)
+             printf "\noption-sound\n"
+             break ;;
+           Space|space)
+             printf "\noption-mountspace\n"
+             break ;;
+           User|user)
+             printf "\noption-userspace\n"
+             break ;;
+           Xorg|xorg)
+             printf "\noption-xorg\n"
+             break ;;
+           *)
+             sel=1
+             break ;;
+          esac
+        done
+        sleep 1s
+        done
+        unset logs
         break ;;
       *)
         sel=0
