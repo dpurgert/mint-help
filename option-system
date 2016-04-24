@@ -20,7 +20,7 @@
 ########################################################################
 
 if [ "$1" = "-h" ]; then
-   echo "   option-system
+   printf "   option-system
    -------------
 
    This script will gather system related information which may 
@@ -33,12 +33,6 @@ if [ "$1" = "-h" ]; then
    USAGE:
      option-system 
 
-   ROOT COMMANDS:
-     If allowed, this script will update both inxi and the pci id  
-     file at /usr/share/misc/pci.ids.  The script can be successfully
-     run without updating these, but some output may be less clear 
-     than if the updates are allowed.
-
    ------------- "
 
    exit 0
@@ -50,33 +44,8 @@ if [ "$1" = "-v" ]; then
    exec 6>&1
 fi
 
-# ask user if they want to execute root commands.
-if [[ $EUID -ne 0 ]]; then
-   echo "This script requires root permissions to update"
-   echo "inxi and the pci id list. "
-   
-   read -n 1 -p "Update as root? [Y/n]" "chk"
-   if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-      #exit, user answered no
-      printf "\n\nNOT updating inxi or pci IDs, if you would like more\n"
-      printf "information about what these do, run with the -h option.\n"
-      update="false"
-      read -n1 -p "Continue without updating? [Y/n]" "chk"
-      if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-         printf "\nExiting\n"
-         exit 0
-      else
-         printf "\nContinuing without update ...\n"
-      fi 
-   else
-      printf "\nUpdating inxi and PCI IDs ... \n\n" 
-      sudo inxi -U >&6 2>&1
-      sudo update-pciids >&6 2>&1
-      printf "\nRoot commands complete."
-      printf "\nProgram will continue running as user: $USER.\n\n"
-      update="true"
-   fi
-else
+# forbid execution as root.
+if [[ $EUID -eq 0 ]]; then
    printf "\n\n===================WARNING!!!====================\n"
    printf "Detected script being run as root user.  It is not\n"
    printf "advisable to do so, as any errors in this script,\n"
@@ -97,43 +66,33 @@ fi
 
 
 (date
-if [ "$update" = "true" ]; then
-   printf "\ninxi / PCI IDs updated\n\n"
-else
-   printf "\ninxi / PCI IDs NOT updated\n\n";
-fi 
-echo "--option-system--"
-[ -d /sys/firmware/efi ] 
-echo "EFI boot on HDD" || echo "Legacy boot on HDD" 
+printf "\n--OPTION SYSTEM--\n\n--EFI CHECK START--\n"
+[ -d /sys/firmware/efi ] && printf "\nEFI boot on HDD\n" \
+ || printf "\nLegacy boot on HDD\n"
+printf "\n--EFI CHECK END--\n\n--INXI START--\n"
 inxi -c0 -Fzxxtcm5 
-printf "\n--grub-kernel-options-start--"
+printf "\n--GRUB KERNEL OPTIONS START--"
 
 grep -Ei 'GRUB_CMDLINE_' /etc/default/grub
 
-echo "--grub-kernel-options-end--
-
---x-session-manager-start"
+printf "--GRUB KERNEL OPTIONS END--\n\n--X SESSION MANAGER START--\n"
 
 update-alternatives --list x-session-manager
 
-echo "--x-session-manager-end--
-
---dkms-status-start--"
+printf "--X SESSION MANAGER END--\n\n--DKMS STATUS START--\n"
 
 dkms status
 
-echo "--dkms-status-end--
-
---start-syslog--"
+printf "\n--DKMS STATUS END--\n\n--SYSLOG START--\n"
 
 grep -B1 -Ei 'fail|error|critical' /var/log/syslog
 
-echo "--end-syslog--" 
-if grep -q vmmon /var/log/syslog ; then echo "found vmware" ; fi 
+printf "\n--SYSLOG END--\n\n--VMWARE CHECK START--\n"
+if grep -q vmmon /var/log/syslog ; then printf "\nfound vmware\n" ; fi 
 
-echo "--start-dmesg--"
+printf "\n--VMWARE CHECK END--\n\n--DMESG START--\n"
 dmesg | grep -B1 -Ei 'fail|error|critical'
-echo "--end-dmesg--"
+printf "\n--DMESG END--\n"
 
 date ) | tee ~/option-system.log >&6 2>&1
 
@@ -146,7 +105,7 @@ read -n1 -p "Share file to pastebin? [y|N]" "chk"
 
 if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
    printf "\nProvide the following link to your helper:\n"
-   echo "$(pastebin < ~/option-system.log)"
+   printf "\n$(pastebin < ~/option-system.log)\n"
 else
    printf "\nLogfile NOT uploaded to pastebin.\n"
    printf "Ask the person assisting you where to send it.\n"

@@ -20,7 +20,7 @@
 ########################################################################
 
 if [ "$1" = "-h" ]; then
-   echo "   option-xorg
+   printf "\n   option-xorg
    -------------
 
    This script will gather information about the X display system
@@ -32,12 +32,6 @@ if [ "$1" = "-h" ]; then
 
    USAGE:
      option-xorg 
-
-   ROOT COMMANDS:
-     If allowed, this script will update both inxi and the pci id  
-     file at /usr/share/misc/pci.ids.  The script can be successfully
-     run without updating these, but some output may be less clear 
-     than if the updates are allowed.
 
    ------------- "
 
@@ -51,32 +45,7 @@ if [ "$1" = "-v" ]; then
 fi
 
 # ask user if they want to execute root commands.
-if [[ $EUID -ne 0 ]]; then
-   echo "This script requires root permissions to update"
-   echo "inxi and the pci id list. "
-   
-   read -n 1 -p "Update as root? [Y/n]" "chk"
-   if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-      #exit, user answered no
-      printf "\n\nNOT updating inxi or pci IDs, if you would like more\n"
-      printf "information about what these do, run with the -h option.\n"
-      update="false"
-      read -n1 -p "Continue without updating? [Y/n]" "chk"
-      if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-         printf "\nExiting\n"
-         exit 0
-      else
-         printf "\nContinuing without update ...\n"
-      fi 
-   else
-      printf "\nUpdating inxi and PCI IDs ... \n\n" 
-      sudo inxi -U >&6 2>&1
-      sudo update-pciids >&6 2>&1
-      printf "\nRoot commands complete."
-      printf "\nProgram will continue running as user: $USER.\n\n"
-      update="true"
-   fi
-else
+if [[ $EUID -eq 0 ]]; then
    printf "\n\n===================WARNING!!!====================\n"
    printf "Detected script being run as root user.  It is not\n"
    printf "advisable to do so, as any errors in this script,\n"
@@ -137,7 +106,7 @@ read -n1 -p "Share file to pastebin? [y|N]" "chk"
 
 if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
    printf "\nProvide the following link to your helper:\n"
-   echo "$(pastebin < ~/option-xorg.log)"
+   printf "\n$(pastebin < ~/option-xorg.log)\n"
 else
    printf "\nLogfile NOT uploaded to pastebin.\n"
    printf "Ask the person assisting you where to send it.\n"

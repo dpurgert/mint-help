@@ -21,7 +21,7 @@
 ########################################################################
 
 if [ "$1" = "-h" ]; then
-   echo "   option-pstree
+   printf "\n   option-pstree
    -------------
 
    This script will gather process related information which may 
@@ -34,11 +34,6 @@ if [ "$1" = "-h" ]; then
    USAGE:
      option-packages
 
-   ROOT COMMANDS:
-     If allowed, this script will update inxi.   
-     The script can be successfully run without updating this, but 
-     some output may be less clear than if the update is allowed.
-
    ------------- "
 
    exit 0
@@ -50,32 +45,8 @@ if [ "$1" = "-v" ]; then
    exec 6>&1
 fi
 
-# ask user if they want to execute root commands.
-if [[ $EUID -ne 0 ]]; then
-   echo "This script requires root permissions to update inxi."
-   
-   read -n 1 -p "Update as root? [Y/n]" "chk"
-   if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-      #exit, user answered no
-      printf "\n\nNOT updating inxi, if you would like more\n"
-      printf "information about what this does, run with the -h
-option.\n"
-      update="false"
-      read -n1 -p "Continue without updating? [Y/n]" "chk"
-      if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-         printf "\nExiting\n"
-         exit 0
-      else
-         printf "\nContinuing without update ...\n"
-      fi 
-   else
-      printf "\nUpdating inxi ... \n\n" 
-      sudo inxi -U >&6 2>&1
-      printf "\nRoot commands complete."
-      printf "\nProgram will continue running as user: $USER.\n\n"
-      update="true"
-   fi
-else
+# forbid execution as root.
+if [[ $EUID -eq 0 ]]; then
    printf "\n\n===================WARNING!!!====================\n"
    printf "Detected script being run as root user.  It is not\n"
    printf "advisable to do so, as any errors in this script,\n"
@@ -98,7 +69,8 @@ fi
 (
   date 
   printf "\n--OPTION PSTREE--\n\n--CHECK HDD EFI INFO--\n"
-  [ -d /sys/firmware/efi ] && echo "EFI boot on HDD" || echo "Legacy boot on HDD" 
+  [ -d /sys/firmware/efi ] && printf "\nEFI boot on HDD\n" \
+   || printf "\nLegacy boot on HDD]n" 
   printf "\n--EFI INFO END--\n\n--INXI START--\n"
   inxi -c0 -F 
   printf "\n--INXI END--\n\n--PSTREE START--\n"
@@ -116,7 +88,7 @@ read -n1 -p "Share file to pastebin? [y|N]" "chk"
 
 if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
    printf "\nProvide the following link to your helper:\n"
-   echo "$(pastebin < ~/option-pstree.log)"
+   printf "\n$(pastebin < ~/option-pstree.log)\n"
 else
    printf "\nLogfile NOT uploaded to pastebin.\n"
    printf "Ask the person assisting you where to send it.\n"

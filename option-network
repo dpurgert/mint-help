@@ -22,7 +22,7 @@
 
 
 if [ "$1" = "-h" ]; then
-   echo "   option-network
+   printf "\n   option-network
    -------------
 
    This script will gather system related information which may 
@@ -34,12 +34,6 @@ if [ "$1" = "-h" ]; then
 
    USAGE:
      option-system 
-
-   ROOT COMMANDS:
-     If allowed, this script will update both inxi and the pci id  
-     file at /usr/share/misc/pci.ids.  The script can be successfully
-     run without updating these, but some output may be less clear 
-     than if the updates are allowed.
 
    ------------- "
 
@@ -53,8 +47,8 @@ if [ "$1" = "-v" ]; then
 fi
 
 upt=$(uptime | cut -d\  -f4-6 | cut -d, -f1,2)
-day=$(echo "$upt" | cut -d\  -f1)
-hr=$(echo "$upt" | cut -d\  -f3 | cut -d\: -f1)
+day=$(printf "$upt" | cut -d\  -f1)
+hr=$(printf "$upt" | cut -d\  -f3 | cut -d\: -f1)
 
 if [ "$day" -gt 0 ] || [ "$hr" -gt 2]; then 
    printf "\n\n===========NOTE==============\n"
@@ -72,33 +66,8 @@ if [ "$day" -gt 0 ] || [ "$hr" -gt 2]; then
    fi
 fi
 
-# ask user if they want to execute root commands.
-if [[ $EUID -ne 0 ]]; then
-   echo "This script requires root permissions to update"
-   echo "inxi and the pci id list. "
-   
-   read -n 1 -p "Update as root? [Y/n]" "chk"
-   if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-      #exit, user answered no
-      printf "\n\nNOT updating inxi or pci IDs, if you would like more\n"
-      printf "information about what these do, run with the -h option.\n"
-      update="false"
-      read -n1 -p "Continue without updating? [Y/n]" "chk"
-      if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-         printf "\nExiting\n"
-         exit 0
-      else
-         printf "\nContinuing without update ...\n"
-      fi 
-   else
-      printf "\nUpdating inxi and PCI IDs ... \n\n" 
-      sudo inxi -U >&6 2>&1
-      sudo update-pciids >&6 2>&1
-      printf "\nRoot commands complete."
-      printf "\nProgram will continue running as user: $USER.\n\n"
-      update="true"
-   fi
-else
+# forbid execution by root.
+if [[ $EUID -eq 0 ]] ; then
    printf "\n\n===================WARNING!!!====================\n"
    printf "Detected script being run as root user.  It is not\n"
    printf "advisable to do so, as any errors in this script,\n"
@@ -121,13 +90,12 @@ fi
  printf "\n--DKMS STATUS END--\n\n--RFKILL START--\n"
  rfkill list 
  printf "\n--RFKILL END--\n\n--NMCLI START--\n"
- echo "NetworkManager's status:"
+ printf "\nNetworkManager\'s status:\n"
  nmcli -m tabular nm  
- echo  
- echo "NetworkManager's connections:"  
+  
+ printf"\n\nNetworkManager\'s connections:\n"  
  nmcli -m tabular c  
- echo  
- echo "Devices managed by NetworkManager:"
+ printf "\n\nDevices managed by NetworkManager:\n"
  nmcli -m tabular d  
  printf "\n--NMCLI END--\n\n--MINTWIFI START--\n"
  mintwifi 
@@ -154,7 +122,7 @@ read -n1 -p "Share file to pastebin? [y|N]" "chk"
 
 if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
    printf "\nProvide the following link to your helper:\n"
-   echo "$(pastebin < ~/option-network.log)"
+   printf "\n$(pastebin < ~/option-network.log)\n"
 else
    printf "\nLogfile NOT uploaded to pastebin.\n"
    printf "Ask the person assisting you where to send it.\n"
@@ -167,5 +135,3 @@ if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
 else
    printf "\nLogfile $HOME/option-network.log retained.\n"
 fi
-
- echo "Done, the log has been saved to ~/trouble-shoot-history.txt"

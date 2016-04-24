@@ -20,7 +20,7 @@
 ########################################################################
 
 if [ "$1" = "-h" ]; then
-   echo "   option-sound
+   printf "\n   option-sound
    -------------
 
    This script will gather sound related information which may 
@@ -34,11 +34,9 @@ if [ "$1" = "-h" ]; then
      option-sound 
 
    ROOT COMMANDS:
-     If allowed, this script will update both inxi and the pci id  
-     file at /usr/share/misc/pci.ids, as well as unloading / reloading
-     the sound drivers via alsa.  The script can be successfully
-     run without updating these, but some output may be less clear 
-     than if the updates are allowed.
+     If allowed, this script will reload the sound drivers via alsa.  
+     The script can be successfully run without reloading these, but 
+     some issues may be resolved with a simple reload.
 
    ------------- "
 
@@ -53,32 +51,22 @@ fi
 
 # ask user if they want to execute root commands.
 if [[ $EUID -ne 0 ]]; then
-   echo "This script requires root permissions to update"
-   echo "inxi and the pci id list, as well as reload alsa. "
+   printf "\nThis script requires root permissions to reload\n" 
+   printf "the sound drivers with alsa.\n"
    
    read -n 1 -p "Execute these commands as root? [Y/n]" "chk"
    if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
       #exit, user answered no
-      printf "\n\nNOT updating inxi or pci IDs, or reloading system\n"
-      printf "sound drivers.  If you would like more information\n"
-      printf "about what these do, run with the -h option.\n"
-      update="false"
-      read -n1 -p "Continue anyway? [Y/n]" "chk"
-      if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-         printf "\nExiting\n"
-         exit 0
-      else
-         printf "\nContinuing without update ...\n"
-      fi 
+      printf "\n\nNOT reloading system sound drivers.\n"
+      printf "If you would like more information, run with the\n"
+      printf "-h option.\n"
+      update=false
    else
-      printf "\nUpdating inxi and PCI IDs ... \n\n" 
-      sudo inxi -U >&6 2>&1
-      sudo update-pciids >&6 2>&1
       printf "Re-loading sound drivers ... \n\n"
       sudo alsa force-reload >&6 2>&1
       printf "\nRoot commands complete."
       printf "\nProgram will continue running as user: $USER.\n\n"
-      update="true"
+      update=true
    fi
 else
    printf "\n\n===================WARNING!!!====================\n"
@@ -102,7 +90,7 @@ fi
 ( 
   printf "--OPTION SOUND/AUDIO--\n"
   date 
-  if [ "$update" = "true" ]; then
+  if $update ; then
     printf "\n--ALSA RELOADED--\n"
   else
     printf "\n--ALSA NOT RELOADED--\n"
@@ -130,7 +118,7 @@ read -n1 -p "Share file to pastebin? [y|N]" "chk"
 
 if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
    printf "\nProvide the following link to your helper:\n"
-   echo "$(pastebin < ~/option-sound.log)"
+   printf "\n$(pastebin < ~/option-sound.log)\n"
 else
    printf "\nLogfile NOT uploaded to pastebin.\n"
    printf "Ask the person assisting you where to send it.\n"

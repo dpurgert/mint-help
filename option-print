@@ -20,7 +20,7 @@
 ########################################################################
 
 if [ "$1" = "-h" ]; then
-   echo "   option-print
+   printf "\n   option-print
    -------------
 
    This script will gather printer related information which may 
@@ -33,12 +33,6 @@ if [ "$1" = "-h" ]; then
    USAGE:
      option-system 
 
-   ROOT COMMANDS:
-     If allowed, this script will update both inxi and the pci id  
-     file at /usr/share/misc/pci.ids.  The script can be successfully
-     run without updating these, but some output may be less clear 
-     than if the updates are allowed.
-
    ------------- "
 
    exit 0
@@ -50,35 +44,8 @@ if [ "$1" = "-v" ]; then
    exec 6>&1
 fi
 
-# ask user if they want to execute root commands.
-if [[ $EUID -ne 0 ]]; then
-   echo "This script requires root permissions to update"
-   echo "inxi and the pci id list. "
-   
-   read -n 1 -p "Update as root? [Y/n]" "chk"
-   if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-      #exit, user answered no
-      printf "\n\nNOT updating inxi or pci IDs, if you would like
-more\n"
-      printf "information about what these do, run with the -h
-option.\n"
-      update="false"
-      read -n1 -p "Continue without updating? [Y/n]" "chk"
-      if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-         printf "\nExiting\n"
-         exit 0
-      else
-         printf "\nContinuing without update ...\n"
-      fi 
-   else
-      printf "\nUpdating inxi and PCI IDs ... \n\n" 
-      sudo inxi -U >&6 2>&1
-      sudo update-pciids >&6 2>&1
-      printf "\nRoot commands complete."
-      printf "\nProgram will continue running as user: $USER.\n\n"
-      update="true"
-   fi
-else
+# forbid root execution.
+if [[ $EUID -eq 0 ]]; then
    printf "\n\n===================WARNING!!!====================\n"
    printf "Detected script being run as root user.  It is not\n"
    printf "advisable to do so, as any errors in this script,\n"
@@ -100,24 +67,22 @@ fi
 
 (
  date ;
- if [ "$update" = "true" ]; then
-  printf "\ninxi / PCI IDs updated\n\n"
- else
-  printf "\ninxi / PCI IDs NOT updated\n\n";
- fi
  printf "\n--INXI BEGIN--\n"
  inxi -c0 -MS ;
  printf "\n--INXI END--\n\n--CHECK CUPS DAEMONS--\n"
- [ -e /var/run/cups/cupsd.pid ] && echo "CUPS Daemon (cupsd) Running" ||  echo "CUPS Daemon (cupsd) Stopped"
+ [ -e /var/run/cups/cupsd.pid ] && \
+  printf "\nCUPS Daemon (cupsd) Running\n" \
+  || printf "\nCUPS Daemon (cupsd) Stopped\n"
  fi
  if [ -e /var/run/cups/cups-browsed.pid ]; then
-   echo "CUPS Bonjour Daemon (cups-browsed) Running" 
+   printf "\nCUPS Bonjour Daemon (cups-browsed) Running\n" 
  else
-   echo "CUPS Bonjour Daemon (cups-browsed) Stopped"
-   echo "=================NOTE====================="
-   echo "not all systems seem to create the pidfile"
-   echo "   /var/run/cups/cups-browsed"
-   echo "=========================================="
+   printf "\nCUPS Bonjour Daemon (cups-browsed) Stopped\n"
+   printf "=================NOTE=====================\n"
+   printf "not all systems seem to create the pidfile\n"
+   printf "   /var/run/cups/cups-browsed\n"
+   printf "Appears that it is running as $(pgrep cups-browsed)\n"
+   printf "==========================================\n"
  fi
  printf "\n--CHECK CUPS COMPLETE--\n\n--SCANNER TEST START--\n"
  scanimage -L 
@@ -138,7 +103,7 @@ read -n1 -p "Share file to pastebin? [y|N]" "chk"
 
 if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
    printf "\nProvide the following link to your helper:\n"
-   echo "$(pastebin < ~/option-print.log)"
+   printf "\n$(pastebin < ~/option-print.log)\n"
 else
    printf "\nLogfile NOT uploaded to pastebin.\n"
    printf "Ask the person assisting you where to send it.\n"

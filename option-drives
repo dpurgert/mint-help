@@ -20,7 +20,7 @@
 ########################################################################
 
 if [ "$1" = "-h" ]; then
-   echo "   option-drives
+   printf "\n   option-drives
    -------------
 
    This script will gather information related to your HDD which may 
@@ -34,10 +34,9 @@ if [ "$1" = "-h" ]; then
      option-drives 
 
    ROOT COMMANDS:
-     If allowed, this script will update inxi, and also run the
-     partition manager (parted).  The script can be successfully run 
-     without updating/allowing these, but some output may be less clear
-     than if the script is allowed to run these commands.
+     If allowed, this script will run the partition manager (parted)
+     The script can successfully run without allowing this, but some 
+     issues may require the output of parted.
 
    ------------- "
 
@@ -52,29 +51,17 @@ fi
 
 # ask user if they want to execute root commands.
 if [[ $EUID -ne 0 ]]; then
-   echo "This script requires root permissions to update"
-   echo "inxi and run parted."
+   printf "\nThis script requires root permissions to run parted\n"
    
-   read -n 1 -p "Allow running root commands? [Y/n]" "chk"
+   read -n 1 -p "Allow running command? [Y/n]" "chk"
    if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
       #exit, user answered no
-      printf "\n\nNOT updating inxi or running parted, if you would\n"
-      printf "like more information about what these do, run with\n"
+      printf "\n\nNOT running parted, if you would like more \n"
+      printf "information about what this does, run with\n"
       printf "the -h option.\n"
-      update="false"
-      read -n1 -p "Continue without updating? [Y/n]" "chk"
-      if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-         printf "\nExiting\n"
-         exit 0
-      else
-         printf "\nContinuing without update ...\n"
-      fi 
+      update=false
    else
-      printf "\nUpdating inxi and PCI IDs ... \n\n" 
-      sudo inxi -U >&6 2>&1
-      printf "\nRoot commands complete."
-      printf "\nProgram will continue running as user: $USER.\n\n"
-      update="true"
+      update=true
    fi
 else
    printf "\n\n===================WARNING!!!====================\n"
@@ -96,29 +83,23 @@ fi
 
 
 (
-if [ "$update" = "true" ]; then
-   printf "\ninxi updated\n"
-else
-   printf "\ninxi NOT updated\n";
-fi 
-
- echo "--ENF CHECK--" ;
- [ -d /sys/firmware/efi ] ;
- echo "EFI boot on HDD" || echo "Legacy boot on HDD" ;
- printf "\n--EFI END--\n\n--INXI BEGIN--\n";
- inxi -c0 -MSRduplo ;
- if [ "$update" = "true" ]; then
-   printf "\n--INXI END--\n\n--PARTITIONS END--\n"; 
-   sudo parted -l ;
-   printf "\n--PARTITIONS END--\n\n--LSBLK BEGIN--\n";
+ printf "\n--EFI CHECK--\n" 
+ [ -d /sys/firmware/efi ] &&
+  printf "\nEFI boot on HDD\n" || printf "\nLegacy boot on HDD\n"
+ printf "\n--EFI END--\n\n--INXI BEGIN--\n"
+ inxi -c0 -MSRduplo 
+ if $update ; then
+   printf "\n--INXI END--\n\n--PARTITIONS BEGIN--\n" 
+   sudo parted -l 
+   printf "\n--PARTITIONS END--\n\n--LSBLK BEGIN--\n"
  else
-   printf "\n--INXI END\n\n--LSBLK BEGIN--\n";
+   printf "\n--INXI END\n\n--LSBLK BEGIN--\n"
  fi 
  
- lsblk -fmi ;
+ lsblk -fmi 
 
  printf "\n--LSBLK END--\n\n--FSTAB BEGIN--\n"
- cat /etc/fstab ;
+ cat /etc/fstab 
  printf "\n--FSTAB END--\n"
 ) | tee ~/option-drives.log >&6 2>&1
 
@@ -133,7 +114,7 @@ read -n1 -p "Share file to pastebin? [y|N]" "chk"
 
 if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
    printf "\nProvide the following link to your helper:\n"
-   echo "$(pastebin < ~/option-drives.log)"
+   printf "\n$(pastebin < ~/option-drives.log)\n"
 else
    printf "\nLogfile NOT uploaded to pastebin.\n"
    printf "Ask the person assisting you where to send it.\n"
@@ -146,4 +127,3 @@ if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
 else
    printf "\nLogfile $HOME/option-drives.log retained.\n"
 fi
-
