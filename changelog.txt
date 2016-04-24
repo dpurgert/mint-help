@@ -11,9 +11,29 @@
 #
 ########################################################################
 
+Version 0.2.0
+Release Date: 2016-04-24
+------------------------------
+Changes:
+------------------------------
+Added ability to upload existing logfiles to dpaste (dpaste.com),
+pastebin (pastebin.com), or gist (gist.github.com), provided that the
+user of the program has the necessary programs installed (curl,
+pastebin, or gist).
+
+Options that require a program not currently installed are not shown on
+the menu.
+
+Scripts still individually retain their ability to send to pastebin, in
+the event they're invoked as standalone, rather than via the menu.
+
+Changed Files:
+mintmenu
+
+
 ========================================================================
 Version: 0.1.0
-Release Date: 2016-04-24
+Release Date: 2016-04-23
 ------------------------------
 Changes:
 ------------------------------

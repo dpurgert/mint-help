@@ -68,11 +68,6 @@ fi
 
 (
   date 
-  if [ "$update" = "true" ]; then
-     printf "\ninxi updated\n\n"
-  else
-     printf "\ninxi NOT updated\n\n";
-  fi 
   printf "\n--INXI START--\n"
   inxi -c0 -Sr 
   printf "\n--INXI END--\n\n--APT TERM.LOG CHECK BEGIN--\n"

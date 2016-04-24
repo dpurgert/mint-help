@@ -4,8 +4,8 @@
 #
 #                       script: minthelp
 #                           by: Dan Purgert    
-#                      version: 0.1
-#                         date: Sat Apr 23 22:27:51 EDT 2016
+#                      version: 0.2
+#                         date: Sun Apr 24 16:00:04 EDT 2016
 #                      purpose: Central menu / wrapper script for the
 #                             : various option-* scripts used by the
 #                             : linux mint community members to assist
@@ -270,6 +270,23 @@ do
         break ;;
      13)
         sel=2
+        logf=''
+        define -a dest
+        dpast=false
+        gio=false
+        pbin=false
+        # check for what tools the user has installed
+        # used later when we ask them where to send it
+      
+        if command -v curl 2>/dev/null ; then dpast=true ; fi
+        if command -v gist 2>/dev/null ; then gio=true; fi
+        if command -v pastebin 2>/dev/null ; then pbin=true; fi
+       
+        if $dpast ; then dest+="dpaste.com "; fi
+        if $gio ; then dest+="gist.github.com ";fi
+        if $pbin ; then dest+="pastebin.com " ;fi
+        dest+="Exit"
+    
         if [ -f ~/option-drives.log ] ; then logs+="Drives "; fi
         if [ -f ~/option-network.log ] ; then logs+="Network "; fi
         if [ -f ~/option-packages.log ] ; then logs+="Packages "; fi
@@ -291,42 +308,81 @@ do
           case $REPLY in
            Drives|drives)
              printf "\noption-drives\n"
+             logf="$HOME/option-drives.log"
              break ;;
            Network|network)
              printf "\noption-network\n"
+             logf="$HOME/option-network.log"
              break ;;
            Packages|packages)
              printf "\noption-packages\n"
+             logf="$HOME/option-packages.log"
              break ;;
            Printing|printing)
              printf "\noption-print\n"
+             logf="$HOME/option-print.log"
              break ;;
            Processes|processes)
              printf "\noption-pstree\n"
+             logf="$HOME/option-pstree.log"
              break ;;
            System|system)
              printf "\noption-system\n"
+             logf="$HOME/option-system.log"
              break ;;
            Sound|sound)
              printf "\noption-sound\n"
+             logf="$HOME/option-sound.log"
              break ;;
            Space|space)
              printf "\noption-mountspace\n"
+             logf="$HOME/option-mountspace.log"
              break ;;
            User|user)
              printf "\noption-userspace\n"
+             logf="$HOME/option-userspace.log"
              break ;;
            Xorg|xorg)
              printf "\noption-xorg\n"
+             logf="$HOME/option-xorg.log"
              break ;;
            *)
              sel=1
              break ;;
           esac
         done
-        sleep 1s
+        if [ $sel -ne 1 ] ; then
+        printf "Where should the file be sent?\n"
+        printf "Use only the hostname to make your selection,\n"
+        printf "for example \"pastebin\" to upload to pastebin.com.\n"
+        select choice in ${dest[@]} 
+        do
+          case $REPLY in
+            dpaste) 
+             printf "\nSending to dpaste, this may take a moment." 
+             printf "\n$(curl -s -F "expiry_days=1" -F "content=<$logf"\
+              http://dpaste.com/api/v2/)\n"
+             read -n1 -p "Press any key to continue." "chk"
+             break ;;
+            gist)  
+             printf "\nSending to gist, this may take a moment." 
+             printf "\n$(gist-paste -ap < $logf)\n"
+             read -n1 -p "Press any key to continue." "chk"
+             break ;;
+            pastebin)
+             printf "\nSending to pastebin, this may take a moment." 
+             printf "\n$(pastebin < $logf)\n"
+             read -n1 -p "Press any key to continue." "chk"
+             break ;;
+            *)
+             printf "\nNOT Sending anything.\n"
+             sleep 1; break ;;
+          esac
+        done 
+        fi
         done
         unset logs
+        unset dest
         break ;;
       *)
         sel=0
