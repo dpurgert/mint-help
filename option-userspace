@@ -58,6 +58,12 @@ if [[ $EUID -eq 0 ]]; then
    exit 1
 fi
 
+if [ "$1" != "-v" ]; then
+   printf "\nQuiet Mode: Final notification until program completes."
+   printf "\nDo not press any keys until prompted.\n"
+fi
+
+
 (
   date 
   printf "\n--OPTION USERSPACE--\n\n--INXI START--\n"

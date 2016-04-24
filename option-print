@@ -73,7 +73,6 @@ fi
  [ -e /var/run/cups/cupsd.pid ] && \
   printf "\nCUPS Daemon (cupsd) Running\n" \
   || printf "\nCUPS Daemon (cupsd) Stopped\n"
- fi
  if [ -e /var/run/cups/cups-browsed.pid ]; then
    printf "\nCUPS Bonjour Daemon (cups-browsed) Running\n" 
  else

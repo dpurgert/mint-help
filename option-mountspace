@@ -63,8 +63,12 @@ if [[ $EUID -ne 0 ]]; then
       exit 0
    else 
       #run as sudo
+      if [ "$1" != "-v" ]; then
+      printf "\nQuiet Mode: Final notification until program completes."
+      printf "\nDo not press any keys until prompted.\n"
+      fi
       sudo du -h / 2>/dev/null | grep '^[[:digit:]]*G' | sort -hr \
-      | grep -v '/$' | -head -10 | tee ~/option-mountspace.log >&6 2>&1
+      | grep -v '/$' | head -10 | tee ~/option-mountspace.log >&6 2>&1
    fi
 else
    printf "\n\n===================WARNING!!!====================\n"

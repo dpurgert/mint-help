@@ -170,81 +170,98 @@ hlp=0
 vrb=0
 mod=''
 
-while [ sel -ne 0 ]
+while [ $sel -ne 0 ]
 do
-  select "Drives" "Networking" "Packages" "Printing" "Process Tree" \
-   "Sound" "System" "Used Drive Space" "Userspace" "X org" \
-   "Set Help Mode" "Set Verbose Mode" "Exit"
-  
-  case $RESP in
-    1)
-      bash ./option-drives $mod
-      break ;;
-    2)
-      bash ./option-network $mod
-      break ;;
-    3)
-      bash ./option-packages $mod
-      break ;;
-    4)
-      bash ./option-print $mod
-      break ;;
-    5)
-      bash ./option-pstree $mod
-      break ;;
-    6)
-      bash ./option-sound $mod
-      break ;;
-    7)
-      bash ./option-system $mod
-      break ;;
-    8)
-      bash ./option-mountspace $mod
-      break ;;
-    9)
-      bash ./option-userspace $mod
-      break ;;
-   10)
-      bash ./option-xorg $mod
-      break ;;
-   11)
-      if [ $vrb -eq 1 ]; then
-        vrb=0
-      fi
-      if [ $hlp -eq 0 ] ; then
-        printf "\nHelp Mode Enable\n"
-        hlp=1
-        mod="-h"
-      else
-        printf "\nHelp Mode Disable\n"
-        hlp=0
-        mod=''
-      fi
-      break ;;
-   12)
-      if [ $hlp -eq 1 ]; then
-        hlp=0
-      fi
-      if [ $vrb -eq 0 ] ; then
-        printf "\nVerbose Mode Enable\n"
-        vrb=1
-        mod="-v"
-      else
-        printf "\nVerbose Mode Disable\n"
-        vrb=0
-        mod=''
-      fi
-      break ;;
-    *)
-      sel=0
-      printf "\Exiting.\n"
-      break ;;
-  esac
-  printf "\nWait for ten (10) seconds to allow you to read messages.\n"
-  for i in {10..1}
+  select choice in "Drives" "Networking" "Packages" "Printing" \
+   "Process Tree" "Sound" "System" "Used Drive Space" "Userspace"\
+   "X org" "Set Help Mode" "Set Verbose Mode" "Exit"
   do
-    i=i--
-    sleep 1s
+    case $REPLY in
+      1)
+        bash ./option-drives $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+      2)
+        bash ./option-network $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+      3)
+        bash ./option-packages $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+      4)
+        bash ./option-print $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+      5)
+        bash ./option-pstree $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+      6)
+        bash ./option-sound $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+      7)
+        bash ./option-system $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+      8)
+        bash ./option-mountspace $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+      9)
+        bash ./option-userspace $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+     10)
+        bash ./option-xorg $mod
+        printf "\nPausing to give you a chance to read.\n"
+        sleep 3s
+        break ;;
+     11)
+        if [ $vrb -eq 1 ]; then
+          vrb=0
+        fi
+        if [ $hlp -eq 0 ] ; then
+          printf "\nHelp Mode Enable\n"
+          hlp=1
+          mod="-h"
+        else
+          printf "\nHelp Mode Disable\n"
+          hlp=0
+          mod=''
+        fi
+        sleep 1s
+        break ;;
+     12)
+        if [ $hlp -eq 1 ]; then
+          hlp=0
+        fi
+        if [ $vrb -eq 0 ] ; then
+          printf "\nVerbose Mode Enable\n"
+          vrb=1
+          mod="-v"
+        else
+          printf "\nVerbose Mode Disable\n"
+          vrb=0
+          mod=''
+        fi
+        sleep 1s
+        break ;;
+      *)
+        sel=0
+        printf "\nExiting.\n"
+        break ;;
+    esac
   done
   clear
 done

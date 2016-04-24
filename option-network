@@ -52,7 +52,7 @@ hr=$(printf "$upt" | cut -d\  -f3 | cut -d\: -f1)
 
 if [ "$day" -gt 0 ] || [ "$hr" -gt 2]; then 
    printf "\n\n===========NOTE==============\n"
-   printf "Computer has been running for: $upt."
+   printf "Computer has been running for: $upt.\n"
    printf "If your problem is recent, it may be fixed simply by\n"
    printf "rebooting the PC.  Also, if you control the router / modem\n"
    printf "reboot them too."
@@ -80,12 +80,17 @@ if [[ $EUID -eq 0 ]] ; then
    exit 1
 fi
 
+if [ "$1" != "-v" ]; then
+   printf "\nQuiet Mode: Final notification until program completes."
+   printf "\nDo not press any keys until prompted.\n"
+fi
+
 
 (
  date 
- printf"\n--OPT NETWORK--\n\n--INXI START--\n"
+ printf "\n--OPT NETWORK--\n\n--INXI START--\n"
  inxi -c0 -z -MSIpNnxx 
- printf"\n--INXI END--\n\n--DKMS STATUS START--\n"
+ printf "\n--INXI END--\n\n--DKMS STATUS START--\n"
  dkms status 
  printf "\n--DKMS STATUS END--\n\n--RFKILL START--\n"
  rfkill list 
@@ -93,7 +98,7 @@ fi
  printf "\nNetworkManager\'s status:\n"
  nmcli -m tabular nm  
   
- printf"\n\nNetworkManager\'s connections:\n"  
+ printf "\n\nNetworkManager\'s connections:\n"  
  nmcli -m tabular c  
  printf "\n\nDevices managed by NetworkManager:\n"
  nmcli -m tabular d  

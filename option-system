@@ -75,11 +75,11 @@ printf "\n--GRUB KERNEL OPTIONS START--"
 
 grep -Ei 'GRUB_CMDLINE_' /etc/default/grub
 
-printf "--GRUB KERNEL OPTIONS END--\n\n--X SESSION MANAGER START--\n"
+printf "\n--GRUB KERNEL OPTIONS END--\n\n--X SESSION MANAGER START--\n"
 
 update-alternatives --list x-session-manager
 
-printf "--X SESSION MANAGER END--\n\n--DKMS STATUS START--\n"
+printf "\n--X SESSION MANAGER END--\n\n--DKMS STATUS START--\n"
 
 dkms status
 

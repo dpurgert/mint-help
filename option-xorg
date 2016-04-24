@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 ########################################################################
 #
 #
@@ -58,7 +58,6 @@ if [[ $EUID -eq 0 ]]; then
    exit 1
 fi
 
-
 if [ "$1" != "-v" ]; then
    printf "\nQuiet Mode: Final notification until program completes."
    printf "\nDo not press any keys until prompted.\n"
@@ -71,9 +70,9 @@ fi
   inxi -c0 -MSGIsprxx 
   printf "\n--INXI END--\n\n--BEGIN GRUB KERNEL OPTIONS--\n"
   grep -Ei 'GRUB_CMDLINE_' /etc/default/grub 
-  printf"\--END GRUB KERNEL OPTIONS--\n\n--XRANDR BEGIN--\n"
+  printf "\--END GRUB KERNEL OPTIONS--\n\n--XRANDR BEGIN--\n"
   xrandr 
-  printf"\n--XRANDR END--\n\n--DKMS STATUS START--\n"
+  printf "\n--XRANDR END--\n\n--DKMS STATUS START--\n"
   dkms status 
   printf "\n--DKMS STATUS END--\n\n--LSMOD START--\n"
   lsmod | grep -Ei 'vid|nvi|int|i9|fgl|nouv|rad|vbox|ndi' \
@@ -91,7 +90,7 @@ fi
   [ -e /var/log/Xorg.0.log ] && \
   grep -Ewi 'kernel|conf|WW|EE' /var/log/Xorg.0.log || \
   printf "\nXorg.0.log does not exist.\n"
-  printf "\n--XORG.0.LOG END--\n\n--SYSLOG START--\n;
+  printf "\n--XORG.0.LOG END--\n\n--SYSLOG START--\n;"
   grep -Ei 'fail|error|critical' /var/log/syslog
   printf "\nS--SYSLOG END--\n"
   date 

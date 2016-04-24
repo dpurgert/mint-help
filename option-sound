@@ -58,8 +58,8 @@ if [[ $EUID -ne 0 ]]; then
    if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
       #exit, user answered no
       printf "\n\nNOT reloading system sound drivers.\n"
-      printf "If you would like more information, run with the\n"
-      printf "-h option.\n"
+      printf "If you would like more information, run with \n"
+      printf "the -h option.\n"
       update=false
    else
       printf "Re-loading sound drivers ... \n\n"
@@ -88,7 +88,7 @@ if [ "$1" != "-v" ]; then
 fi
 
 ( 
-  printf "--OPTION SOUND/AUDIO--\n"
+  printf "\--OPTION SOUND/AUDIO--\n"
   date 
   if $update ; then
     printf "\n--ALSA RELOADED--\n"
