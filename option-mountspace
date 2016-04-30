@@ -45,6 +45,19 @@ if [ "$1" = "-h" ]; then
    exit 0
 fi
 
+#create the spinner
+spinner() {
+  local pid=$1
+  local del=0.5
+  local sp='/-\|'
+  local n=${#sp}
+  printf ' '
+  while [ $(ps a | awk '{print $1}' | grep $pid) ] ; do 
+        printf '\b%s' "${sp:i++%n:1}"  
+        sleep $del
+  done
+}
+
 exec 6>/dev/null 
 if [ "$1" = "-v" ]; then
    #verbose   
@@ -67,9 +80,10 @@ if [[ $EUID -ne 0 ]]; then
       printf "\nQuiet Mode: Final notification until program completes."
       printf "\nDo not press any keys until prompted.\n"
       fi
-      sudo du -h / 2>/dev/null | grep '^[[:digit:]]*G' | sort -hr \
-      | grep -v '/$' | head -10 | tee /tmp/option-mountspace.log >&6 \
-      2>&1
+      i=0
+      $(sudo du -h / 2>/dev/null | grep '^[[:digit:]]*G' | \
+       sort -hr | grep -v '/$' | head -10 | \
+       tee /tmp/option-mountspace.log >&6 2>&1) & spinner $!
    fi
 else
    printf "\n\n===================WARNING!!!====================\n"
@@ -88,3 +102,4 @@ printf "\n\n============================\n"
 printf "COMPLETED! A copy has been saved to:\n"
 printf "   /tmp/option-mountspace.log\n"
 printf "============================\n\n"
+
