@@ -37,6 +37,8 @@
 VERSION="0.3"
 GPL="http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#SEC3"
 
+#kill the cursor
+printf "\e[?25l"
 
 if [ "$1" = "-h" ]; then
    printf "   minthelp
@@ -179,6 +181,7 @@ else
    printf "priveleges for the command(s) that require it, and\n"
    printf "then drop back to your standard user.\n\n"
    printf "Exiting.\n"
+   printf "\e[?25h" #show cursor
    exit 1
 fi
 
@@ -494,43 +497,43 @@ do
           case $REPLY in
            Drives|drives)
              printf "\noption-drives\n"
-             rm /tmp/option-drives.log
+             less /tmp/option-drives.log
              break ;;
            Network|network)
              printf "\noption-network\n"
-             rm /tmp/option-network.log
+             less /tmp/option-network.log
              break ;;
            Packages|packages)
              printf "\noption-packages\n"
-             rm /tmp/option-packages.log
+             less /tmp/option-packages.log
              break ;;
            Printing|printing)
              printf "\noption-print\n"
-             rm /tmp/option-print.log
+             less /tmp/option-print.log
              break ;;
            Processes|processes)
              printf "\noption-pstree\n"
-             rm /tmp/option-pstree.log
+             less /tmp/option-pstree.log
              break ;;
            System|system)
              printf "\noption-system\n"
-             rm /tmp/option-system.log
+             less /tmp/option-system.log
              break ;;
            Sound|sound)
              printf "\noption-sound\n"
-             rm /tmp/option-sound.log
+             less /tmp/option-sound.log
              break ;;
            Space|space)
              printf "\noption-mountspace\n"
-             rm /tmp/option-mountspace.log
+             less /tmp/option-mountspace.log
              break ;;
            User|user)
              printf "\noption-userspace\n"
-             rm /tmp/option-userspace.log
+             less /tmp/option-userspace.log
              break ;;
            Xorg|xorg)
              printf "\noption-xorg\n"
-             rm /tmp/option-xorg.log
+             less /tmp/option-xorg.log
              break ;;
            *)
              sel=1
@@ -555,3 +558,4 @@ do
   done
   clear
 done
+printf "\e[?25h" #show cursor

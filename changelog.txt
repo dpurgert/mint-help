@@ -19,8 +19,10 @@ Changes:
 Consolidated logfile actions (send, delete, view) into main menu.
 Scripts no longer individually allow sending / deleting the logs.
 
-Corrected some typos in the logfiles themselves.
+Added user info (i.e. spinners) to scripts that take a while to operate,
+so the user doesn't think the script hung.  
 
+Corrected some typos in the logfiles themselves.
 
 ========================================================================
 Version 0.2.0
