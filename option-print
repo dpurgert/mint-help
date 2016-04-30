@@ -91,27 +91,9 @@ fi
  grep -Ei 'error|fail|cups|colord' /var/log/syslog 
  printf "\n--SYSLOG CUPS ERRORS END--\n"
  date 
-) | tee ~/option-print.log >&6 2>&1
+) | tee /tmp/option-print.log >&6 2>&1
 
 printf "\n\n============================\n"
 printf "COMPLETED! A copy has been saved to:\n"
-printf "   $HOME/option-print.log\n"
+printf "   /tmp/option-print.log\n"
 printf "============================\n\n"
-
-read -n1 -p "Share file to pastebin? [y|N]" "chk"
-
-if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
-   printf "\nProvide the following link to your helper:\n"
-   printf "\n$(pastebin < ~/option-print.log)\n"
-else
-   printf "\nLogfile NOT uploaded to pastebin.\n"
-   printf "Ask the person assisting you where to send it.\n"
-fi
-
-read -n1 -p "Remove the logfile? [y|N]" "chk"
-if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
-   rm $HOME/option-print.log
-   printf "\nLogfile removed.\n"
-else
-   printf "\nLogfile $HOME/option-print.log retained.\n"
-fi

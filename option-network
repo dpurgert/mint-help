@@ -25,7 +25,7 @@ if [ "$1" = "-h" ]; then
    printf "\n   option-network
    -------------
 
-   This script will gather system related information which may 
+   This script will gather network related information which may 
    help the community troubleshoot the problem you are having.
 
    Options:
@@ -103,6 +103,7 @@ fi
  printf "\n\nDevices managed by NetworkManager:\n"
  nmcli -m tabular d  
  printf "\n--NMCLI END--\n\n--MINTWIFI START--\n"
+ printf "\nNOTE this prints things out of order, read carefully.\n\n"
  mintwifi 
  printf "\n--MINTWIFI END--\n\n--NDISWRAPPER LIST START--\n"
  ndiswrapper -l 
@@ -116,27 +117,9 @@ fi
  dmesg | grep -Ei 'error|fail|dkms|blue|wifi|net:|hid|tcp|udp|eth|wlan|ipv|80211|ath1|dns' 
  printf "\n--DMESG END--\n"
  date
-) | tee ~/option-network.log >&6 2>&1
+) | tee /tmp/option-network.log >&6 2>&1
 
 printf "\n\n============================\n"
 printf "COMPLETED! A copy has been saved to:\n"
-printf "   $HOME/option-network.log\n"
+printf "   /tmp/option-network.log\n"
 printf "============================\n\n"
-
-read -n1 -p "Share file to pastebin? [y|N]" "chk"
-
-if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
-   printf "\nProvide the following link to your helper:\n"
-   printf "\n$(pastebin < ~/option-network.log)\n"
-else
-   printf "\nLogfile NOT uploaded to pastebin.\n"
-   printf "Ask the person assisting you where to send it.\n"
-fi
-
-read -n1 -p "Remove the logfile? [y|N]" "chk"
-if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
-   rm $HOME/option-network.log
-   printf "\nLogfile removed.\n"
-else
-   printf "\nLogfile $HOME/option-network.log retained.\n"
-fi

@@ -77,27 +77,9 @@ fi
   sudo pstree -ansup 
   printf "\n--PSTREE END--\n\n"
   date
-) | tee ~/option-pstree.log >&6 2>&1
+) | tee /tmp/option-pstree.log >&6 2>&1
 
 printf "\n\n============================\n"
 printf "COMPLETED! A copy has been saved to:\n"
-printf "   $HOME/option-pstree.log\n"
+printf "   /tmp/option-pstree.log\n"
 printf "============================\n\n"
-
-read -n1 -p "Share file to pastebin? [y|N]" "chk"
-
-if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
-   printf "\nProvide the following link to your helper:\n"
-   printf "\n$(pastebin < ~/option-pstree.log)\n"
-else
-   printf "\nLogfile NOT uploaded to pastebin.\n"
-   printf "Ask the person assisting you where to send it.\n"
-fi
-
-read -n1 -p "Remove the logfile? [y|N]" "chk"
-if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
-   rm $HOME/option-pstree.log
-   printf "\nLogfile removed.\n"
-else
-   printf "\nLogfile $HOME/option-pstree.log retained.\n"
-fi

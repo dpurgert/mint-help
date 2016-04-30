@@ -68,7 +68,8 @@ if [[ $EUID -ne 0 ]]; then
       printf "\nDo not press any keys until prompted.\n"
       fi
       sudo du -h / 2>/dev/null | grep '^[[:digit:]]*G' | sort -hr \
-      | grep -v '/$' | head -10 | tee ~/option-mountspace.log >&6 2>&1
+      | grep -v '/$' | head -10 | tee /tmp/option-mountspace.log >&6 \
+      2>&1
    fi
 else
    printf "\n\n===================WARNING!!!====================\n"
@@ -85,23 +86,5 @@ fi
 
 printf "\n\n============================\n"
 printf "COMPLETED! A copy has been saved to:\n"
-printf "   $HOME/option-mountspace.log\n"
+printf "   /tmp/option-mountspace.log\n"
 printf "============================\n\n"
-
-read -n1 -p "Share file to pastebin? [y|N]" "chk"
-
-if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
-   printf "\nProvide the following link to your helper:\n"
-   printf "\n$(pastebin < ~/option-mountspace.log)\n"
-else
-   printf "\nLogfile NOT uploaded to pastebin.\n"
-   printf "Ask the person assisting you where to send it.\n"
-fi
-
-read -n1 -p "Remove the logfile? [y|N]" "chk"
-if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
-   rm $HOME/option-system.log
-   printf "\nLogfile removed.\n"
-else
-   printf "\nLogfile $HOME/option-mountspace.log retained.\n"
-fi

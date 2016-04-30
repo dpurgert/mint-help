@@ -4,7 +4,8 @@
 #
 #                       script: minthelp
 #                           by: Dan Purgert    
-#                      version: 0.2
+#                    copyright: 2016
+#                      version: 0.3
 #                         date: Sun Apr 24 16:00:04 EDT 2016
 #                      purpose: Central menu / wrapper script for the
 #                             : various option-* scripts used by the
@@ -17,6 +18,25 @@
 #
 #
 ########################################################################
+
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+#02110-1301, USA.
+
+VERSION="0.3"
+GPL="http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#SEC3"
+
 
 if [ "$1" = "-h" ]; then
    printf "   minthelp
@@ -47,7 +67,18 @@ if [ "$1" = "-h" ]; then
    exit 0
 fi
 
-printf "Checking inxi and pci list.\nThis may take a few moments...\n"
+clear
+
+printf "\n\n\n\n
+Mint helper version $VERSION, Copyright (C) 2016 Dan Purgert.
+This program comes with ABSOLUTELY NO WARRANTY; for details see the GNU
+GPL.  This is free software, and you are welcome to redistribute it
+under certain conditions; see:\n$GPL for details.\n\n\n\n"
+
+read -n1 -p "Press any key to continue"
+clear
+printf "\n\n\n\n
+Checking inxi and pci list.\nThis may take a few moments...\n"
 
 #get inxi and the PCI List version numbers
 inxiver="$(inxi --version | head -1 | cut -d\  -f2 | cut -d\- -f1)"
@@ -164,13 +195,7 @@ printf "\n From here on out, all but three of the options do not require
 
 #pause to allow user to read...
 
-printf "\nWait to allow you to read.\n"
-for i in {10..1}; do
-  if [ $i -le 5 ]; then
-    printf "$i...\n"
-  fi
-  sleep 1s
-done
+read -n1 -p "Press any key to continue."
 
 #finally made it to the menu!
 clear
@@ -182,61 +207,52 @@ declare -a logs
 
 while [ $sel -ne 0 ]
 do
+  printf "Please make a selection:\n"
   select choice in "Drives" "Networking" "Packages" "Printing" \
    "Process Tree" "Sound" "System" "Used Drive Space" "Userspace"\
-   "X org" "Set Help Mode" "Set Verbose Mode" "Upload Existing Log" \
-   "Exit"
+   "X org" "Set Help Mode" "Set Verbose Mode" "Upload Log" \
+   "Delete Log" "View Log" "Exit"
   do
     case $REPLY in
       1)
         bash ./option-drives $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
       2)
         bash ./option-network $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
       3)
         bash ./option-packages $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
       4)
         bash ./option-print $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
       5)
         bash ./option-pstree $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
       6)
         bash ./option-sound $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
       7)
         bash ./option-system $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
       8)
         bash ./option-mountspace $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
       9)
         bash ./option-userspace $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
      10)
         bash ./option-xorg $mod
-        printf "\nPausing to give you a chance to read.\n"
-        sleep 3s
+        read -n1 -p "Press any key to continue."
         break ;;
      11)
         if [ $vrb -eq 1 ]; then
@@ -271,7 +287,7 @@ do
      13)
         sel=2
         logf=''
-        define -a dest
+        declare -a dest
         dpast=false
         gio=false
         pbin=false
@@ -282,22 +298,21 @@ do
         if command -v gist 2>/dev/null ; then gio=true; fi
         if command -v pastebin 2>/dev/null ; then pbin=true; fi
        
-        if $dpast ; then dest+="dpaste.com "; fi
-        if $gio ; then dest+="gist.github.com ";fi
-        if $pbin ; then dest+="pastebin.com " ;fi
-        dest+="Exit"
-    
-        if [ -f ~/option-drives.log ] ; then logs+="Drives "; fi
-        if [ -f ~/option-network.log ] ; then logs+="Network "; fi
-        if [ -f ~/option-packages.log ] ; then logs+="Packages "; fi
-        if [ -f ~/option-print.log ] ; then logs+="Printing ";fi
-        if [ -f ~/option-pstree.log ] ; then logs+="Processes "; fi
-        if [ -f ~/option-sound.log ] ; then logs+="Sound "; fi
-        if [ -f ~/option-system.log ] ; then logs+="System "; fi
-        if [ -f ~/option-mountspace.log ];then logs+="Space ";fi
-        if [ -f ~/option-userspace.log ] ; then logs+="User "; fi
-        if [ -f ~/option-xorg.log ] ; then logs+="Xorg "; fi
-        logs+="Back"
+        if $dpast ; then dest+=("dpaste.com"); fi
+        if $gio ; then dest+=("gist.github.com");fi
+        if $pbin ; then dest+=("pastebin.com") ;fi
+        dest+=("Exit")
+        if [ -f /tmp/option-drives.log ] ; then logs+=("Drives"); fi
+        if [ -f /tmp/option-network.log ] ; then logs+=("Network"); fi
+        if [ -f /tmp/option-packages.log ] ; then logs+=("Packages"); fi
+        if [ -f /tmp/option-print.log ] ; then logs+=("Printing");fi
+        if [ -f /tmp/option-pstree.log ] ; then logs+=("Processes"); fi
+        if [ -f /tmp/option-sound.log ] ; then logs+=("Sound"); fi
+        if [ -f /tmp/option-system.log ] ; then logs+=("System"); fi
+        if [ -f /tmp/option-mountspace.log ];then logs+=("Space");fi
+        if [ -f /tmp/option-userspace.log ] ; then logs+=("User"); fi
+        if [ -f /tmp/option-xorg.log ] ; then logs+=("Xorg"); fi
+        logs+=("Back")
         while [ $sel -eq  2 ] ; do
         clear
         printf "Select log using the NAME, not the NUMBER, as this\n"
@@ -307,51 +322,48 @@ do
         do
           case $REPLY in
            Drives|drives)
-             printf "\noption-drives\n"
-             logf="$HOME/option-drives.log"
+             logf="/tmp/option-drives.log"
              break ;;
            Network|network)
-             printf "\noption-network\n"
-             logf="$HOME/option-network.log"
+             logf="/tmp/option-network.log"
              break ;;
            Packages|packages)
-             printf "\noption-packages\n"
-             logf="$HOME/option-packages.log"
+             logf="/tmp/option-packages.log"
              break ;;
            Printing|printing)
-             printf "\noption-print\n"
-             logf="$HOME/option-print.log"
+             logf="/tmp/option-print.log"
              break ;;
            Processes|processes)
-             printf "\noption-pstree\n"
-             logf="$HOME/option-pstree.log"
+             logf="/tmp/option-pstree.log"
              break ;;
            System|system)
-             printf "\noption-system\n"
-             logf="$HOME/option-system.log"
+             logf="/tmp/option-system.log"
              break ;;
            Sound|sound)
-             printf "\noption-sound\n"
-             logf="$HOME/option-sound.log"
+             logf="/tmp/option-sound.log"
              break ;;
            Space|space)
-             printf "\noption-mountspace\n"
-             logf="$HOME/option-mountspace.log"
+             logf="/tmp/option-mountspace.log"
              break ;;
            User|user)
-             printf "\noption-userspace\n"
-             logf="$HOME/option-userspace.log"
+             logf="/tmp/option-userspace.log"
              break ;;
            Xorg|xorg)
-             printf "\noption-xorg\n"
-             logf="$HOME/option-xorg.log"
+             logf="/tmp/option-xorg.log"
              break ;;
            *)
              sel=1
+             if [[ $REPLY =~ [0-9]{1,} ]] ; then 
+               printf "Invalid choice selected."
+               sel=2
+               sleep 1s
+               clear
+             fi
              break ;;
           esac
         done
-        if [ $sel -ne 1 ] ; then
+        if [ $sel -ne 1 ] && [ $sel -ne 2 ] ; then
+        clear
         printf "Where should the file be sent?\n"
         printf "Use only the hostname to make your selection,\n"
         printf "for example \"pastebin\" to upload to pastebin.com.\n"
@@ -384,9 +396,160 @@ do
         unset logs
         unset dest
         break ;;
+     14)
+        sel=2
+        while [ $sel -eq  2 ] ; do
+        if [ -f /tmp/option-drives.log ] ; then logs+=("Drives"); fi
+        if [ -f /tmp/option-network.log ] ; then logs+=("Network"); fi
+        if [ -f /tmp/option-packages.log ] ; then logs+=("Packages"); fi
+        if [ -f /tmp/option-print.log ] ; then logs+=("Printing");fi
+        if [ -f /tmp/option-pstree.log ] ; then logs+=("Processes"); fi
+        if [ -f /tmp/option-sound.log ] ; then logs+=("Sound"); fi
+        if [ -f /tmp/option-system.log ] ; then logs+=("System"); fi
+        if [ -f /tmp/option-mountspace.log ];then logs+=("Space");fi
+        if [ -f /tmp/option-userspace.log ] ; then logs+=("User"); fi
+        if [ -f /tmp/option-xorg.log ] ; then logs+=("Xorg"); fi
+        logs+=("Back")
+        clear
+        printf "Select log using the NAME, not the NUMBER, as this\n"
+        printf "menu changes, based on the logfiles you have\n"
+        printf "created or removed.\n\n"
+        select choice in ${logs[@]} 
+        do
+          case $REPLY in
+           Drives|drives)
+             printf "\noption-drives\n"
+             rm /tmp/option-drives.log
+             break ;;
+           Network|network)
+             printf "\noption-network\n"
+             rm /tmp/option-network.log
+             break ;;
+           Packages|packages)
+             printf "\noption-packages\n"
+             rm /tmp/option-packages.log
+             break ;;
+           Printing|printing)
+             printf "\noption-print\n"
+             rm /tmp/option-print.log
+             break ;;
+           Processes|processes)
+             printf "\noption-pstree\n"
+             rm /tmp/option-pstree.log
+             break ;;
+           System|system)
+             printf "\noption-system\n"
+             rm /tmp/option-system.log
+             break ;;
+           Sound|sound)
+             printf "\noption-sound\n"
+             rm /tmp/option-sound.log
+             break ;;
+           Space|space)
+             printf "\noption-mountspace\n"
+             rm /tmp/option-mountspace.log
+             break ;;
+           User|user)
+             printf "\noption-userspace\n"
+             rm /tmp/option-userspace.log
+             break ;;
+           Xorg|xorg)
+             printf "\noption-xorg\n"
+             rm /tmp/option-xorg.log
+             break ;;
+           *)
+             sel=1
+             if [[ $REPLY =~ [0-9]{1,} ]] ; then 
+               printf "Invalid choice selected."
+               sel=2
+               sleep 1s
+               clear
+             fi
+             break ;;
+          esac
+        done 
+        unset logs
+        done
+        break ;;
+     15)
+        sel=2
+        if [ -f /tmp/option-drives.log ] ; then logs+=("Drives"); fi
+        if [ -f /tmp/option-network.log ] ; then logs+=("Network"); fi
+        if [ -f /tmp/option-packages.log ] ; then logs+=("Packages"); fi
+        if [ -f /tmp/option-print.log ] ; then logs+=("Printing");fi
+        if [ -f /tmp/option-pstree.log ] ; then logs+=("Processes"); fi
+        if [ -f /tmp/option-sound.log ] ; then logs+=("Sound"); fi
+        if [ -f /tmp/option-system.log ] ; then logs+=("System"); fi
+        if [ -f /tmp/option-mountspace.log ];then logs+=("Space");fi
+        if [ -f /tmp/option-userspace.log ] ; then logs+=("User"); fi
+        if [ -f /tmp/option-xorg.log ] ; then logs+=("Xorg"); fi
+        logs+=("Back")
+        while [ $sel -eq  2 ] ; do
+        clear
+        printf "Select log using the NAME, not the NUMBER, as this\n"
+        printf "menu changes, based on the logfiles you have\n"
+        printf "created or removed.\n\n"
+        select choice in ${logs[@]} 
+        do
+          case $REPLY in
+           Drives|drives)
+             printf "\noption-drives\n"
+             rm /tmp/option-drives.log
+             break ;;
+           Network|network)
+             printf "\noption-network\n"
+             rm /tmp/option-network.log
+             break ;;
+           Packages|packages)
+             printf "\noption-packages\n"
+             rm /tmp/option-packages.log
+             break ;;
+           Printing|printing)
+             printf "\noption-print\n"
+             rm /tmp/option-print.log
+             break ;;
+           Processes|processes)
+             printf "\noption-pstree\n"
+             rm /tmp/option-pstree.log
+             break ;;
+           System|system)
+             printf "\noption-system\n"
+             rm /tmp/option-system.log
+             break ;;
+           Sound|sound)
+             printf "\noption-sound\n"
+             rm /tmp/option-sound.log
+             break ;;
+           Space|space)
+             printf "\noption-mountspace\n"
+             rm /tmp/option-mountspace.log
+             break ;;
+           User|user)
+             printf "\noption-userspace\n"
+             rm /tmp/option-userspace.log
+             break ;;
+           Xorg|xorg)
+             printf "\noption-xorg\n"
+             rm /tmp/option-xorg.log
+             break ;;
+           *)
+             sel=1
+             if [[ $REPLY =~ [0-9]{1,} ]] ; then 
+               printf "Invalid choice selected."
+               sel=2
+               sleep 1s
+               clear
+             fi
+             break ;;
+          esac
+        done 
+        done
+        unset logs
+        break ;;
       *)
         sel=0
         printf "\nExiting.\n"
+        sleep 1s
         break ;;
     esac
   done

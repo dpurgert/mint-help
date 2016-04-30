@@ -88,8 +88,8 @@ if [ "$1" != "-v" ]; then
 fi
 
 ( 
-  printf "\--OPTION SOUND/AUDIO--\n"
   date 
+  printf "\n--OPTION SOUND/AUDIO--\n"
   if $update ; then
     printf "\n--ALSA RELOADED--\n"
   else
@@ -107,27 +107,9 @@ fi
   ps aux | grep -Ei 'pulse|rtkit' 
   printf "\n--PROCESS CHECK COMPLETE--\n\n"
   date 
-) | tee ~/option-sound.log >&6 2>&1
+) | tee /tmp/option-sound.log >&6 2>&1
 
 printf "\n\n============================\n"
 printf "COMPLETED! A copy has been saved to:\n"
-printf "   $HOME/option-sound.log\n"
+printf "   /tmp/option-sound.log\n"
 printf "============================\n\n"
-
-read -n1 -p "Share file to pastebin? [y|N]" "chk"
-
-if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
-   printf "\nProvide the following link to your helper:\n"
-   printf "\n$(pastebin < ~/option-sound.log)\n"
-else
-   printf "\nLogfile NOT uploaded to pastebin.\n"
-   printf "Ask the person assisting you where to send it.\n"
-fi
-
-read -n1 -p "Remove the logfile? [y|N]" "chk"
-if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
-   rm $HOME/option-sound.log
-   printf "\nLogfile removed.\n"
-else
-   printf "\nLogfile $HOME/option-sound.log retained.\n"
-fi

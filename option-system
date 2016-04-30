@@ -71,7 +71,7 @@ printf "\n--OPTION SYSTEM--\n\n--EFI CHECK START--\n"
  || printf "\nLegacy boot on HDD\n"
 printf "\n--EFI CHECK END--\n\n--INXI START--\n"
 inxi -c0 -Fzxxtcm5 
-printf "\n--GRUB KERNEL OPTIONS START--"
+printf "\n--GRUB KERNEL OPTIONS START--\n"
 
 grep -Ei 'GRUB_CMDLINE_' /etc/default/grub
 
@@ -94,27 +94,9 @@ printf "\n--VMWARE CHECK END--\n\n--DMESG START--\n"
 dmesg | grep -B1 -Ei 'fail|error|critical'
 printf "\n--DMESG END--\n"
 
-date ) | tee ~/option-system.log >&6 2>&1
+date ) | tee /tmp/option-system.log >&6 2>&1
 
 printf "\n\n============================\n"
 printf "COMPLETED! A copy has been saved to:\n"
-printf "   $HOME/option-system.log\n"
+printf "   /tmp/option-system.log\n"
 printf "============================\n\n"
-
-read -n1 -p "Share file to pastebin? [y|N]" "chk"
-
-if [ "$chk" = "y" ] || [ "$chk" = "y" ];  then
-   printf "\nProvide the following link to your helper:\n"
-   printf "\n$(pastebin < ~/option-system.log)\n"
-else
-   printf "\nLogfile NOT uploaded to pastebin.\n"
-   printf "Ask the person assisting you where to send it.\n"
-fi
-
-read -n1 -p "Remove the logfile? [y|N]" "chk"
-if [ "$chk" = "y" ] || [ "$chk" = "Y" ];  then
-   rm $HOME/option-system.log
-   printf "\nLogfile removed.\n"
-else
-   printf "\nLogfile $HOME/option-system.log retained.\n"
-fi
