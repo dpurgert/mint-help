@@ -75,7 +75,7 @@ printf "\n\n\n\n
 Mint helper version $VERSION, Copyright (C) 2016 Dan Purgert.
 This program comes with ABSOLUTELY NO WARRANTY; for details see the GNU
 GPL.  This is free software, and you are welcome to redistribute it
-under certain conditions; see:\n$GPL for details.\n\n\n\n"
+under certain conditions; see:\n$GPL\n for details.\n\n\n\n"
 
 read -n1 -p "Press any key to continue"
 clear

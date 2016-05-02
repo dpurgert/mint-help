@@ -85,7 +85,7 @@ if [ "$1" != "-v" ]; then
    printf "\nDo not press any keys until prompted.\n"
 fi
 
-
+set -x
 (
  date 
  printf "\n--OPT NETWORK--\n\n--INXI START--\n"
@@ -104,7 +104,7 @@ fi
  nmcli -m tabular d  
  printf "\n--NMCLI END--\n\n--MINTWIFI START--\n"
  printf "\nNOTE this prints things out of order, read carefully.\n\n"
- mintwifi 
+ mintwifi 2>&1
  printf "\n--MINTWIFI END--\n\n--NDISWRAPPER LIST START--\n"
  ndiswrapper -l 
  printf "\n--NDISWRAPPER LIST END--\n\n--LSMOD START--\n"
@@ -118,6 +118,8 @@ fi
  printf "\n--DMESG END--\n"
  date
 ) | tee /tmp/option-network.log >&6 2>&1
+
+set +x
 
 printf "\n\n============================\n"
 printf "COMPLETED! A copy has been saved to:\n"
