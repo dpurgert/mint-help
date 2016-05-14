@@ -67,6 +67,7 @@ if [ "$1" = "-h" ]; then
 
    -------------"
    exit 0
+   printf "\e[?25h" #show cursor
 fi
 
 clear
@@ -86,6 +87,28 @@ Checking inxi and pci list.\nThis may take a few moments...\n"
 inxiver="$(inxi --version | head -1 | cut -d\  -f2 | cut -d\- -f1)"
 pciver="$(grep Version /usr/share/misc/pci.ids | head -1 | tr -s ' ' \
   | cut -d\  -f2)"
+
+#set this so inxi updates can happen, then check if the system isn't
+#getting in the way.
+inxi=true
+if [ -f /etc/inxi.conf ]; then
+  tmp="$(grep B_ALLOW_UPDATE /etc/inxi.conf)"
+  if [ "$tmp" = "B_ALLOW_UPDATE=false" ]; then 
+    printf "\nCurrent inxi settings will prohibit you from updating.\n"
+    printf "Updating will require root permissions.\n"
+    read -n1 -p "Shall we correct this? [Y/n]" "chk"
+    if [ "$chk" = "n" ] || [ $chk = "N" ]; then
+      printf "\nOkay, DISABLING INXI UPDATES.\n"
+      inxi=false
+    else
+      sudo sed -i.bak 's/B_ALLOW_UPDATE=false/B_ALLOW_UPDATE=true/'\
+       /etc/inxi.conf
+      printf "\ninxi config file updated.\n"
+      printf "Original is /etc/inxi.conf.bak"
+    fi
+    unset tmp
+  fi
+fi
 
 #check for / get changelogs
 
