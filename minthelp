@@ -136,6 +136,58 @@ printf "============================\n\n"
 
 ########################################################################
 #
+#                            OPTION-INIT
+#
+########################################################################
+
+chkinit() {
+if [ "$1" = "-h" ]; then
+   printf "\n   option-init
+   -------------
+
+   This will check what init system is running on your machine, 
+   in case you want to verify if systemd didn't sneak in. Other
+   than that, there's not much purpose to this option.
+
+   Options:
+    These options can be set via the main menu.
+     Print this help, and exit.
+     Verbose Mode.  Print to stdout and logfile
+
+   ------------- "
+
+   exit 0
+fi
+
+exec 6>/dev/null 
+if [ "$1" = "-v" ]; then
+   #verbose   
+   exec 6>&1
+fi
+
+( 
+ date
+ printf "\n--OPTION INIT--\n"
+ if [[ -f /etc/init.d/cron && ! -h /etc/init.d/cron ]]; then
+  printf "\n  running sysvinit!\n"
+ elif [[ "$(systemctl)" =~ "-\.mount" ]]; then
+  printf "\n  running systemd\n"
+ elif [[ "$(/sbin/init --version)" =~ "upstart" ]]; then 
+  printf "\n  running upstart\n"
+ else
+  printf "\n  sorry, cannot tell your init system\n"
+ fi
+
+ printf "\n--END--\n"
+) | tee /tmp/option-init.log >&6 2>&1
+
+printf "\n\n============================\n"
+printf "COMPLETED! A copy has been saved to:\n"
+printf "   /tmp/option-init.log\n"
+printf "============================\n\n"
+}
+########################################################################
+#
 #                            OPTION-MOUNTSPACE
 #
 ########################################################################
@@ -557,7 +609,7 @@ if [[ $EUID -ne 0 ]]; then
    
    read -n 1 -p "Execute these commands as root? [Y/n]" "chk"
    if [ "$chk" = "n" ] || [ "$chk" = "N" ]; then 
-      #exit, user answered no
+      #user answered no
       printf "\n\nNOT reloading system sound drivers.\n"
       printf "If you would like more information, run with \n"
       printf "the -h option.\n"
@@ -931,7 +983,7 @@ if [[ $EUID -ne 0 ]]; then
       sudo apt-get install curl
     fi
   fi
-  if command -v gist 2>/dev/null ; then  i
+  if command -v gist-paste 2>/dev/null ; then  
     :
   else
     printf "\n\"gist\" does not seem to be installed.\n"
@@ -996,7 +1048,7 @@ fi
 clear
 printf "\n\n\n\n\n\n"
 printf "\n From here on out, all but three of the options do not require
- any elevated permissions.  The \"Drives\", \"Used Space\", and
+ any elevated permissions.  The \"Drives\", \"Used Space\", \"pstree\" and
  \"Sound\" options will ask your permission to run with elevated
  permissions. If not given, the program will skip over the part(s) that
  require elevated privileges.  
@@ -1004,7 +1056,9 @@ printf "\n From here on out, all but three of the options do not require
  PLEASE NOTE -- The \"Used Space\" option absolutely requires elevated
   permissions, and will not run without them.  This is due to your 
   \"normal\" user not having permission to check the usage of your HDD
-  in system folders.\n\n"
+  in system folders.\n\n
+  \"Drives\", \"Used Space\" and \"pstree\" all use the elevated
+  permissions to provide some of their output."
 
 #pause to allow user to read...
 
@@ -1021,7 +1075,7 @@ declare -a logs
 while [ $sel -ne 0 ]
 do
   printf "Please make a selection:\n"
-  select choice in "Drives" "Networking" "Packages" "Printing" \
+  select choice in "Drives" "Init" "Networking" "Packages" "Printing" \
    "Process Tree" "Sound" "System" "Used Drive Space" "Userspace"\
    "X org" "Set Help Mode" "Set Verbose Mode" "Upload Log" \
    "Delete Log" "View Log" "Exit"
@@ -1032,42 +1086,46 @@ do
         read -n1 -p "Press any key to continue."
         break ;;
       2)
-        network $mod
+        chkinit $mod
         read -n1 -p "Press any key to continue."
         break ;;
       3)
-        packages $mod
+        network $mod
         read -n1 -p "Press any key to continue."
         break ;;
       4)
-        opprint $mod
+        packages $mod
         read -n1 -p "Press any key to continue."
         break ;;
       5)
-        pstree $mod
+        opprint $mod
         read -n1 -p "Press any key to continue."
         break ;;
       6)
-        sound $mod
+        pstree $mod
         read -n1 -p "Press any key to continue."
         break ;;
       7)
-        systm $mod
+        sound $mod
         read -n1 -p "Press any key to continue."
         break ;;
       8)
-        mountsp $mod
+        systm $mod
         read -n1 -p "Press any key to continue."
         break ;;
       9)
-        usrspc $mod
+        mountsp $mod
         read -n1 -p "Press any key to continue."
         break ;;
      10)
-        xorg $mod
+        usrspc $mod
         read -n1 -p "Press any key to continue."
         break ;;
      11)
+        xorg $mod
+        read -n1 -p "Press any key to continue."
+        break ;;
+     12)
         if [ $vrb -eq 1 ]; then
           vrb=0
         fi
@@ -1082,7 +1140,7 @@ do
         fi
         sleep 1s
         break ;;
-     12)
+     13)
         if [ $hlp -eq 1 ]; then
           hlp=0
         fi
@@ -1097,7 +1155,7 @@ do
         fi
         sleep 1s
         break ;;
-     13)
+     14)
         sel=2
         logf=''
         declare -a dest
@@ -1108,7 +1166,7 @@ do
         # used later when we ask them where to send it
       
         if command -v curl 2>/dev/null ; then dpast=true ; fi
-        if command -v gist 2>/dev/null ; then gio=true; fi
+        if command -v gist-paste 2>/dev/null ; then gio=true; fi
         if command -v pastebin 2>/dev/null ; then pbin=true; fi
        
         if $dpast ; then dest+=("dpaste.com"); fi
@@ -1136,33 +1194,43 @@ do
           case $REPLY in
            Drives|drives)
              logf="/tmp/option-drives.log"
+             sel=0
              break ;;
            Network|network)
              logf="/tmp/option-network.log"
+             sel=0
              break ;;
            Packages|packages)
              logf="/tmp/option-packages.log"
+             sel=0
              break ;;
            Printing|printing)
              logf="/tmp/option-print.log"
+             sel=0
              break ;;
            Processes|processes)
              logf="/tmp/option-pstree.log"
+             sel=0
              break ;;
            System|system)
              logf="/tmp/option-system.log"
+             sel=0
              break ;;
            Sound|sound)
              logf="/tmp/option-sound.log"
+             sel=0
              break ;;
            Space|space)
              logf="/tmp/option-mountspace.log"
+             sel=0
              break ;;
            User|user)
              logf="/tmp/option-userspace.log"
+             sel=0
              break ;;
            Xorg|xorg)
              logf="/tmp/option-xorg.log"
+             sel=0
              break ;;
            *)
              sel=1
@@ -1209,10 +1277,11 @@ do
         unset logs
         unset dest
         break ;;
-     14)
+     15)
         sel=2
         while [ $sel -eq  2 ] ; do
         if [ -f /tmp/option-drives.log ] ; then logs+=("Drives"); fi
+        if [ -f /tmp/option-init.log ] ; then logs+=("Init"); fi
         if [ -f /tmp/option-network.log ] ; then logs+=("Network"); fi
         if [ -f /tmp/option-packages.log ] ; then logs+=("Packages"); fi
         if [ -f /tmp/option-print.log ] ; then logs+=("Printing");fi
@@ -1232,6 +1301,9 @@ do
           case $REPLY in
            Drives|drives)
              rm /tmp/option-drives.log
+             break ;;
+           Init|init)
+             rm /tmp/option-init.log
              break ;;
            Network|network)
              rm /tmp/option-network.log
@@ -1274,9 +1346,10 @@ do
         unset logs
         done
         break ;;
-     15)
+     16)
         sel=2
         if [ -f /tmp/option-drives.log ] ; then logs+=("Drives"); fi
+        if [ -f /tmp/option-init.log ] ; then logs+=("Init"); fi
         if [ -f /tmp/option-network.log ] ; then logs+=("Network"); fi
         if [ -f /tmp/option-packages.log ] ; then logs+=("Packages"); fi
         if [ -f /tmp/option-print.log ] ; then logs+=("Printing");fi
@@ -1297,6 +1370,9 @@ do
           case $REPLY in
            Drives|drives)
              less /tmp/option-drives.log
+             break ;;
+           Init|init)
+             less /tmp/option-init.log
              break ;;
            Network|network)
              less /tmp/option-network.log
